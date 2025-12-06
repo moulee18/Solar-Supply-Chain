@@ -2,10 +2,11 @@ from flask import Flask, render_template, request
 import csv
 import re
 from decimal import Decimal
+import os
 
 app = Flask(__name__)
-DATA_PATH = "data/products.csv"
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(BASE_DIR, "data", "products.csv")
 # keyword-based category inference (extend as needed)
 CATEGORY_KEYWORDS = {
     "Solar Panel": ["panel", "pv module", "solar panel", "module"],

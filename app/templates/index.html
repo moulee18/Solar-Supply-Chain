@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solar Product Marketplace</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Your custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container py-4">
+      <div class="d-flex align-items-center gap-3">
+        <div class="me-2 logo-circle">☀️</div>
+
+        <div class="w-100">
+          <h1 class="site-title mb-2">Solar Product Marketplace</h1>
+
+          <!-- Search form (keeps other filters via hidden inputs) -->
+          <form method="get" action="{{ url_for('index') }}">
+            <div class="input-group shadow-sm">
+              <input
+                name="q"
+                value="{{ filters.get('q','') }}"
+                class="form-control"
+                placeholder="Search solar products, companies, or locations..."
+                aria-label="Search" />
+
+              <!-- keep small filter values so search doesn't lose them -->
+              <input type="hidden" name="state" value="{{ filters.get('state','') }}">
+              <input type="hidden" name="city" value="{{ filters.get('city','') }}">
+              <input type="hidden" name="company" value="{{ filters.get('company','') }}">
+              <input type="hidden" name="category" value="{{ filters.get('category','') }}">
+              <input type="hidden" name="min_price" value="{{ filters.get('min_price','') }}">
+              <input type="hidden" name="max_price" value="{{ filters.get('max_price','') }}">
+              <input type="hidden" name="min_rating" value="{{ filters.get('min_rating','') }}">
+
+              <button class="btn btn-search" type="submit">Search</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <main class="container my-4">
+    <div class="row gy-4">
+      <!-- Sidebar filters -->
+      <aside class="col-md-3">
+        <div class="card p-3 mb-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="me-2 filter-icon">🔎</div>
+            <h5 class="mb-0">Filters</h5>
+          </div>
+
+          <!-- Category list styled like your screenshot -->
+          <div class="mb-3">
+            <div class="small mb-2 text-muted">Category</div>
+            <div class="list-group category-list">
+              {# Build parameter dict from current request so category links preserve filters #}
+              {% set base_params = request.args.to_dict() %}
+              {# All Products -> remove category (use empty) #}
+              {% set params_all = base_params.copy() %}
+              {% set _ = params_all.update({'category': ''}) %}
+              <a href="{{ url_for('index', **params_all) }}"
+                 class="list-group-item list-group-item-action {% if not filters.get('category') %}active{% endif %}">
+                All Products
+              </a>
+
+              {% for cat in categories %}
+                {% set params_cat = base_params.copy() %}
+                {% set _ = params_cat.update({'category': cat}) %}
+                <a href="{{ url_for('index', **params_cat) }}"
+                   class="list-group-item list-group-item-action {% if filters.get('category')==cat %}active{% endif %}">
+                  {{ cat }}
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Detailed filter form -->
+          <form id="filtersForm" method="get" action="{{ url_for('index') }}">
+            <!-- keep category selection when using form -->
+            <input type="hidden" name="category" value="{{ filters.get('category','') }}">
+
+            <div class="mb-3">
+              <label class="form-label small">State</label>
+              <select name="state" class="form-select form-select-sm">
+                <option value="">All States</option>
+                {% for s in states %}
+                  <option value="{{ s }}" {% if filters.get('state')==s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small">City</label>
+              <select name="city" class="form-select form-select-sm">
+                <option value="">All Cities</option>
+                {% for c in cities %}
+                  <option value="{{ c }}" {% if filters.get('city')==c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small">Company</label>
+              <select name="company" class="form-select form-select-sm">
+                <option value="">All Companies</option>
+                {% for comp in companies %}
+                  <option value="{{ comp }}" {% if filters.get('company')==comp %}selected{% endif %}>{{ comp }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small">Price range (numeric)</label>
+              <div class="d-flex gap-2">
+                <input name="min_price" value="{{ filters.get('min_price','') }}" type="text" placeholder="Min" class="form-control form-control-sm">
+                <input name="max_price" value="{{ filters.get('max_price','') }}" type="text" placeholder="Max" class="form-control form-control-sm">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small">Minimum rating</label>
+              <select name="min_rating" class="form-select form-select-sm">
+                <option value="">Any</option>
+                {% for r in [5,4.5,4,3.5,3,2.5,2,1] %}
+                  <option value="{{ r }}" {% if filters.get('min_rating')== (r|string) %}selected{% endif %}>{{ r }}+</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Preserve search query when applying filters -->
+            <input type="hidden" name="q" value="{{ filters.get('q','') }}">
+
+            <div class="d-grid">
+              <button class="btn btn-primary btn-sm" type="submit">Apply</button>
+            </div>
+          </form>
+        </div>
+      </aside>
+
+      <!-- Product list -->
+      <section class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <small class="text-muted">{{ count }} products found</small>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          {% for item in items %}
+            <div class="col-md-6">
+              <div class="card product-card h-100">
+                <div class="card-header card-gradient p-0"></div>
+
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title mb-1">{{ item['Product Name'] }}</h5>
+                  <p class="mb-1 small text-muted">{{ item['Company'] }} • {{ item['City'] }}</p>
+
+                  <div class="d-flex align-items-center justify-content-between mt-2 mb-3">
+                    <div>
+                      {% if item.PriceNum %}
+                        <div class="h5 text-success mb-0">₹{{ "{:,.2f}".format(item.PriceNum) }}</div>
+                      {% else %}
+                        <div class="h6 text-success mb-0">{{ item['Price'] }}</div>
+                      {% endif %}
+                      <div class="small text-muted">Rating: {{ item.RatingNum }} · Reviews: {{ item['Reviews'] }}</div>
+                    </div>
+                  </div>
+
+                  <p class="small text-muted text-truncate-3 mb-3">{{ item['Location'] }}</p>
+
+                  <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <div class="badge bg-light text-dark small">Category: {{ item['Category'] }}</div>
+                    <a class="btn btn-sm btn-primary" target="_blank" href="{{ item['Product Link'] }}">View Product</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="col-12">
+              <div class="alert alert-warning">No products match the selected filters.</div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

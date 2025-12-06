@@ -1,0 +1,99 @@
+/* Basic page background + typography */
+body {
+  background: #f4f7fb;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #172554;
+  margin: 0;
+}
+
+/* Header */
+.site-header {
+  background: linear-gradient(90deg,#2b7df4 0%, #ff7a29 100%);
+  color: #fff;
+  border-radius: 0 0 12px 12px;
+}
+.site-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+}
+.logo-circle {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.14);
+  border-radius: 10px;
+  font-size: 20px;
+}
+
+/* Search button look */
+.input-group .form-control {
+  border-radius: 10px 0 0 10px;
+  min-height: 46px;
+}
+.btn-search {
+  border-radius: 0 10px 10px 0;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: none;
+  min-width: 100px;
+  font-weight: 600;
+}
+
+/* Cards & product styling */
+.product-card {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(16,24,40,0.06);
+  border: 1px solid rgba(16,24,40,0.04);
+}
+.card-gradient {
+  height: 8px;
+  background: linear-gradient(90deg,#2b7df4 0%, #ff7a29 100%);
+}
+
+/* Text truncation for descriptions */
+.text-truncate-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Sidebar category list look */
+.category-list .list-group-item {
+  border: none;
+  border-radius: 8px;
+  padding-left: 12px;
+  margin-bottom: 6px;
+  color: #334155;
+}
+.category-list .list-group-item.active {
+  background: #e7f1ff;
+  color: #054aa6;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+/* Filters card small styling */
+.card.p-3 {
+  border-radius: 12px;
+}
+
+/* Badge look for category inside product */
+.badge {
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .logo-circle { width:46px; height:46px; font-size:18px; }
+  .site-title { font-size:1.05rem; }
+  .input-group .form-control { min-height:40px; }
+}
+
+/* Small icons and spacing */
+.filter-icon { font-size: 20px; }

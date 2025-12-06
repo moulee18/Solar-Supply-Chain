@@ -1,0 +1,14 @@
+Flask==3.0.3
+Werkzeug==3.0.2
+Jinja2==3.1.4
+itsdangerous==2.1.2
+click==8.1.7
+
+# CSV & utility parsing
+python-dateutil==2.9.0.post0
+
+# For Decimal support (comes with Python stdlib but adding for safety)
+decimal==1.70  # optional; can be removed since it's built-in
+
+# If you're using gunicorn to deploy (optional)
+gunicorn==22.0.0
